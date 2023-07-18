@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Golfhands</title>
+
+</head>
+
+<body>
+  <style>
+    video {
+      width: 400px;
+      height: 400px;
+      border: 2px solid black;
+      object-fit: cover;
+    }
+
+    canvas {
+      width: 400px;
+      height: 400px;
+      border: 2px solid black;
+    }
+  </style>
+  <div>
+    <video id="camera"></video>
+  </div>
+
+  <div>
+    <canvas id="canvas" />
+  </div>
+
+  <button id="startBtn" disabled>
+    Start
+  </button>
+
+  <button id="stopBtn">
+    Stop
+  </button>
+
+  <div id="debug">
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/handtrackjs@latest/dist/handtrack.min.js"> </script>
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const canvas = document.getElementById("canvas");
+    const video = document.getElementById("camera");
+    const debug = document.getElementById("debug")
+    const mediaDevices = navigator.mediaDevices;
+    const context = canvas.getContext('2d');
+
+    const modelParams = {
+      flipHorizontal: false, // flip e.g for video
+      maxNumBoxes: 20, // maximum number of boxes to detect
+      iouThreshold: 0.5, // ioU threshold for non-max suppression
+      scoreThreshold: 0.6, // confidence threshold for predictions.
+    };
+
+    let model = null;
+
+    handTrack.load(modelParams).then((lmodel) => {
+      model = lmodel;
+      console.log(model);
+      startBtn.disabled = false;
+    });
+
+    function runDetection() {
+      model.detect(video).then((predictions) => {
+        //console.log("Predictions: ", predictions);
+        model.renderPredictions(predictions, canvas, context, video);
+        requestAnimationFrame(runDetection);
+      });
+    }
+
+    function startVideo() {
+      handTrack.startVideo(video).then(status => {
+        console.log(status);
+        if (status) {
+          runDetection();
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+      startBtn.addEventListener("click", () => {
+        mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        }).then((stream) => {
+          video.srcObject = stream;
+          video.addEventListener("loadedmetadata", () => {
+            startVideo();
+          });
+        }).catch(alert);
+      });
+
+      stopBtn.addEventListener("click", () => {
+        handTrack.stopVideo(video);
+      });
+    });
+  </script>
+</body>
+
+</html>
