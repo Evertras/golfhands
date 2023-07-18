@@ -76,6 +76,23 @@
           const box = handPredictions[0].bbox
           const xAverage = (box[0] + box[2]) / 2;
 
+          // Funsies
+          /*
+          switch (handPredictions[0].label) {
+            case "open":
+              osc.type = "sine";
+              break;
+
+            case "closed":
+              osc.type = "sawtooth";
+              break;
+
+            case "point":
+              osc.type = "triangle";
+              break;
+          }
+          */
+
           osc.frequency.value = xAverage;
         }
 
