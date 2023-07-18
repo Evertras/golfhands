@@ -69,12 +69,13 @@
       model.detect(video).then((predictions) => {
         model.renderPredictions(predictions, canvas, context, video);
 
-        const handPredictions = predictions.filter(p => p.label != "face");
+        const handPredictions = predictions.filter(p => p.label != "face").sort((a, b) => a.score > b.score ? -1 : 1);
 
         if (handPredictions.length > 0) {
-          //console.log("Predictions: ", handPredictions);
+          console.log("Predictions: ", handPredictions);
           const box = handPredictions[0].bbox
           const xAverage = (box[0] + box[2]) / 2;
+          const yAverage = (box[1] + box[3]) / 2;
 
           // Funsies
           /*
@@ -94,6 +95,7 @@
           */
 
           osc.frequency.value = xAverage;
+          vol.gain.value = Math.min(0.5, yAverage / 240);
         }
 
         requestAnimationFrame(runDetection);
@@ -109,7 +111,7 @@
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           osc = audioCtx.createOscillator();
           vol = audioCtx.createGain();
-          vol.gain.value = 0.1; // from 0 to 1, 1 full volume, 0 is muted
+          vol.gain.value = 1; // from 0 to 1, 1 full volume, 0 is muted
           osc.type = "sine";
           osc.frequency.value = 440;
           osc.connect(vol); // connect osc to vol
