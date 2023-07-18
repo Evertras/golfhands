@@ -13,9 +13,10 @@
     }
 
     canvas {
-      width: 90vw;
+      width: auto;
       height: 90vh;
       border: 2px solid black;
+      aspect-ratio: 4 / 3;
     }
   </style>
   <div>
@@ -72,7 +73,7 @@
         const handPredictions = predictions.filter(p => p.label != "face").sort((a, b) => a.score > b.score ? -1 : 1);
 
         if (handPredictions.length > 0) {
-          console.log("Predictions: ", handPredictions);
+          //console.log("Predictions: ", handPredictions);
           const box = handPredictions[0].bbox
           const xAverage = (box[0] + box[2]) / 2;
           const yAverage = (box[1] + box[3]) / 2;
@@ -94,8 +95,8 @@
           }
           */
 
-          osc.frequency.value = xAverage;
-          vol.gain.value = Math.min(0.5, yAverage / 240);
+          osc.frequency.value = xAverage * 3;
+          vol.gain.value = Math.min(0.5, 1 - (yAverage / 240));
         }
 
         requestAnimationFrame(runDetection);
@@ -111,7 +112,7 @@
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           osc = audioCtx.createOscillator();
           vol = audioCtx.createGain();
-          vol.gain.value = 1; // from 0 to 1, 1 full volume, 0 is muted
+          vol.gain.value = 0.2; // from 0 to 1, 1 full volume, 0 is muted
           osc.type = "sine";
           osc.frequency.value = 440;
           osc.connect(vol); // connect osc to vol
