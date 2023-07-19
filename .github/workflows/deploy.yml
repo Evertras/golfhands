@@ -22,4 +22,4 @@ jobs:
       - name: Deploy
         run: |
           cd site
-          aws s3 sync . s3://golfhands.evertras.com
+          aws s3 sync . s3://golftrainer.evertras.com
